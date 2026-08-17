@@ -1,0 +1,269 @@
+I inspected your uploaded ReadyeCommerce-Web-Admin.zip. This is a modern full-stack Laravel application:
+
+Laravel 13
+PHP ^8.4
+MySQL
+Vue 3
+Vite 5
+Tailwind CSS
+Laravel Sanctum
+Laravel Modules
+Stripe, PayPal, Razorpay, Paystack
+Firebase, Pusher, Twilio, etc.
+
+So unlike the earlier eGrocer frontend, this ZIP contains the Laravel backend/admin source code.
+
+1. Extract the project
+
+On Ubuntu:
+
+cd /var/www/html
+
+
+sudo unzip ~/Downloads/ReadyeCommerce-Web-Admin.zip
+
+Then:
+
+sudo chown -R $USER:$USER /var/www/html/ReadyeCommerce-Web-Admin
+
+
+cd /var/www/html/ReadyeCommerce-Web-Admin
+
+Check:
+
+ls -la
+
+You should see:
+
+app/
+artisan
+bootstrap/
+composer.json
+config/
+database/
+Modules/
+package.json
+public/
+resources/
+routes/
+vendor/
+2. PHP 8.4 is required
+
+This is important. Its composer.json explicitly requires:
+
+"php": "^8.4",
+"laravel/framework": "^13"
+
+Check:
+
+php -v
+
+You need:
+
+PHP 8.4.x
+
+Since you use phpenv, if PHP 8.4 is installed:
+
+phpenv versions
+
+Then:
+
+phpenv local 8.4.x
+phpenv rehash
+hash -r
+
+
+php -v
+which php
+
+Don't try to run this project with PHP 8.1/8.2.
+
+3. Configure .env
+
+The ZIP contains .env.example but not a configured .env.
+
+Run:
+
+cp .env.example .env
+
+Then:
+
+nano .env
+
+The included configuration expects:
+
+APP_NAME="Ready eCommerce"
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://127.0.0.1:8000
+
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=readyecommerce
+DB_USERNAME=root
+DB_PASSWORD=
+
+We'll adjust the DB username/password after creating the database.
+
+4. Create MySQL database
+
+Check MySQL:
+
+sudo systemctl status mysql
+
+If necessary:
+
+sudo systemctl start mysql
+
+Open MySQL:
+
+sudo mysql
+
+Create a dedicated database/user:
+
+CREATE DATABASE readyecommerce
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+
+CREATE USER 'readyecommerce'@'localhost'
+IDENTIFIED BY 'password';
+
+
+GRANT ALL PRIVILEGES
+ON readyecommerce.*
+TO 'readyecommerce'@'localhost';
+
+
+FLUSH PRIVILEGES;
+
+
+EXIT;
+
+Then change .env:
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=readyecommerce
+DB_USERNAME=readyecommerce
+DB_PASSWORD=password
+5. Install PHP dependencies
+
+Interestingly, your ZIP already contains a vendor/ directory.
+
+However, I recommend verifying dependencies with:
+
+composer install
+
+If you receive an extension error such as:
+
+ext-gd missing
+ext-zip missing
+ext-mbstring missing
+
+send me the exact output rather than running composer update.
+
+6. Generate Laravel key
+
+Run:
+
+php artisan key:generate
+
+Then:
+
+php artisan optimize:clear
+
+Check Laravel:
+
+php artisan --version
+
+You should see Laravel 13.x.
+
+7. Check whether the project provides database migrations
+
+Run:
+
+ls -la database/migrations
+
+Also search the ZIP/project for an SQL dump:
+
+find . -type f \( -name "*.sql" -o -name "*.SQL" \)
+
+This step is important.
+
+If there is an included SQL dump, don't run migrations yet. Import the supplied database instead.
+
+If there is no SQL dump and this project expects migrations, run:
+
+php artisan migrate
+
+If seeders exist:
+
+php artisan db:seed
+
+or:
+
+php artisan migrate --seed
+
+But I'd first check the SQL files because commercial e-commerce projects often ship with a pre-populated database.
+
+8. Install frontend dependencies
+
+This project also contains Vue 3/Vite.
+
+Check:
+
+node -v
+npm -v
+
+Node 20 should be appropriate for this Vite 5 setup:
+
+nvm use 20
+
+Then:
+
+npm install
+
+If you get peer dependency conflicts:
+
+npm install --legacy-peer-deps
+9. Run Vite
+
+Open one terminal:
+
+cd /var/www/html/ReadyeCommerce-Web-Admin
+
+
+npm run dev
+
+Keep it running.
+
+10. Run Laravel
+
+Open another terminal:
+
+cd /var/www/html/ReadyeCommerce-Web-Admin
+
+
+php artisan serve
+
+You should get:
+
+Server running on:
+http://127.0.0.1:8000
+
+Open that in your browser.
+
+11. Storage setup
+
+Run:
+
+php artisan storage:link
+
+Then ensure Laravel can write:
+
+chmod -R 775 storage bootstrap/cache
