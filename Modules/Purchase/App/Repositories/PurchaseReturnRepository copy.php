@@ -1,7 +1,6 @@
 <?php
 
 namespace Modules\Purchase\App\Repositories;
-use App\Repositories\Repository;
 
 use Modules\Purchase\App\Models\Purchase;
 use Modules\Purchase\App\Models\PurchaseReturn;

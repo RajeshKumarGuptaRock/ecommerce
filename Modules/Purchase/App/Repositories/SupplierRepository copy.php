@@ -1,7 +1,6 @@
 <?php
 
 namespace Modules\Purchase\App\Repositories;
-use App\Repositories\Repository;
 
 use App\Enums\Roles;
 use Illuminate\Http\Request;
